@@ -1,102 +1,132 @@
-# Globizora API (Express + MongoDB + Stripe)
+Globizora API
 
-Production-style Node/Express backend with JWT auth, MongoDB (Mongoose), Stripe Checkout, Swagger docs, and simple usage tracking.
 
-## Directory
 
-```
+
+
+
+
+
+
+
+Globizora API is a production-ready Express.js backend service that provides:
+
+🔑 JWT authentication & API key management
+
+📦 MongoDB integration (Mongoose ODM)
+
+💳 Stripe Checkout subscription support
+
+📊 API usage tracking & server metrics
+
+📜 Interactive Swagger UI documentation
+
+✨ Features
+
+Auth: User registration / login with JWT, hashed passwords
+
+API Keys: Generate unique keys for each user
+
+Stripe Integration: Subscription plans (free, pro, enterprise) with checkout sessions & webhooks
+
+Data Endpoints: Company info, mock analytics data
+
+Contact Form: Validated input form endpoint
+
+Swagger Docs: Built-in interactive API documentation
+
+Metrics: Users, memory usage, database status
+
+📂 Project Structure
 globizora-api/
 ├─ src/
-│  └─ app.js              # Main server (your provided code, slightly organized)
-├─ .env.example           # Copy to .env and fill variables
+│  └─ app.js              # Main API server
+├─ .env.example           # Environment variable template
 ├─ .gitignore
-├─ docker-compose.yml     # Optional MongoDB service
-├─ Dockerfile             # Container for the API
-├─ nodemon.json           # Dev autoreload
+├─ docker-compose.yml     # MongoDB service (optional)
+├─ Dockerfile             # API container build
 ├─ package.json
 └─ README.md
-```
 
-## Quick Start
-
-1. **Install**
-
-```bash
+🚀 Quick Start
+1. Clone & Install
+git clone https://github.com/Globizora/globizora-api.git
+cd globizora-api
 npm install
-```
 
-2. **Env**
-
-```bash
+2. Configure Environment
 cp .env.example .env
-# edit .env (MONGO_URI, JWT_SECRET, STRIPE keys)
-```
 
-3. **Run MongoDB** (choose one)
-- Local MongoDB on your machine, or
-- Docker:
-```bash
+
+Edit .env:
+
+NODE_ENV=development
+PORT=3000
+MONGO_URI=mongodb://localhost:27017/globizora
+JWT_SECRET=your_long_secret_string
+STRIPE_SECRET_KEY=sk_test_xxx
+STRIPE_WEBHOOK_SECRET=whsec_xxx
+
+3. Start MongoDB
+
+Local install: MongoDB server running on localhost:27017
+
+Or via Docker:
+
 docker compose up -d mongo
-```
 
-4. **Dev server**
+4. Run API
+npm run dev    # Development with nodemon
+# OR
+node src/app.js
 
-```bash
-npm run dev
-# http://localhost:3000  and docs at  http://localhost:3000/docs
-```
-
-## cURL Smoke Tests
-
-```bash
-# Health
-curl http://localhost:3000/status
-
-# Register
-curl -X POST http://localhost:3000/auth/register -H "Content-Type: application/json" \
+🧪 API Examples
+Register
+curl -X POST http://localhost:3000/auth/register \
+  -H "Content-Type: application/json" \
   -d '{ "username":"demo", "email":"demo@example.com", "password":"secret123" }'
 
-# Login (grab token)
-curl -X POST http://localhost:3000/auth/login -H "Content-Type: application/json" \
+Login
+curl -X POST http://localhost:3000/auth/login \
+  -H "Content-Type: application/json" \
   -d '{ "email":"demo@example.com", "password":"secret123" }'
 
-# Protected
-curl http://localhost:3000/users -H "Authorization: Bearer YOUR_JWT_TOKEN"
-```
+Protected Endpoint
+curl http://localhost:3000/users \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
 
-## GitHub — Create & Push
+📖 Documentation
 
-**Option A: Website**
-1. Create a new repo on GitHub (e.g., `globizora-api`), **do not** add any files.
-2. Locally:
-```bash
-git init
-git add .
-git commit -m "chore: bootstrap Globizora API"
-git branch -M main
-git remote add origin https://github.com/<your-username>/globizora-api.git
-git push -u origin main
-```
+Swagger UI is available at:
+👉 http://localhost:3000/docs
 
-**Option B: GitHub CLI**
-```bash
-gh repo create globizora-api --public --source=. --remote=origin --push
-```
+It allows you to explore and test all endpoints (auth, users, API keys, Stripe subscriptions, webhooks).
 
-## Stripe Webhook (dev)
 
-Expose your local server (e.g., with Stripe CLI):
-```bash
-stripe listen --forward-to localhost:3000/webhook/stripe
-```
+Example: Globizora API Swagger UI screenshot.
 
-## Docker (API)
-
-```bash
+🐳 Docker Deployment
 docker build -t globizora-api .
-docker run --env-file .env -p 3000:3000 --name globizora-api --network=host globizora-api
-```
+docker run --env-file .env -p 3000:3000 globizora-api
 
----
+📊 Roadmap
 
-MIT © Globizora Inc
+ Role-based access control (RBAC)
+
+ Stripe metered billing
+
+ Admin dashboard (Next.js)
+
+ Cloud deployment on AWS/GCP
+
+📜 License
+
+MIT © 2025 Globizora Inc
+
+✅ Next steps for you:
+
+Create .github/assets/ in your repo.
+
+Upload your Swagger UI screenshot as swagger-ui.png.
+
+Replace your current README.md with the above full content.
