@@ -26,12 +26,12 @@ jobs:
         uses: actions/checkout@08c6903cd8c0fe910a37f88322edcfb5dd907a8
 
       # actions/setup-node v4.x
-      - name: Setup Node.js
-        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: npm
-          cache-dependency-path: package-lock.json
+- name: Setup Node.js
+  uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444
+  with:
+    node-version: ${{ matrix.node-version }}
+    cache: npm
+    cache-dependency-path: '**/package-lock.json'
 
       - name: Install
         run: npm ci
