@@ -2,8 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -21,40 +22,34 @@ jobs:
         node-version: [20, 22]
 
     steps:
-      # actions/checkout v5.0.0
+      # 固定到 actions/checkout v5.0.0 的 40 位提交
       - name: Checkout
-        uses: actions/checkout@08c6903cd8c0fe910a37f88322edcfb5dd907a8
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
 
-      # actions/setup-node v4.x
-- name: Setup Node.js
-  uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444
-  with:
-    node-version: ${{ matrix.node-version }}
-    cache: npm
-    cache-dependency-path: '**/package-lock.json'
+      # 固定到 actions/setup-node v4 的 40 位提交
+      - name: Setup Node.js
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: npm # 不再指定 cache-dependency-path，自动用 package-lock.json
 
       - name: Install
         run: npm ci
 
-      # 没有 eslint 配置就跳过（避免你现在的报错）
-      - name: Lint (skip if no config)
-        run: |
-          if [ -f "eslint.config.js" ] || ls -1A .eslintrc* >/dev/null 2>&1; then
-            npm run lint
-          else
-            echo "No ESLint config found; skipping lint."
-          fi
+      # 只有当仓库里存在 ESLint 配置时才跑 lint（避免“找不到配置”的失败）
+      - name: Lint
+        if: ${{ hashFiles('eslint.config.*', '.eslintrc*') != '' }}
+        run: npm run lint
 
       - name: Test
         run: npm test --if-present
 
-      # actions/upload-artifact v4.x
-      - name: Upload logs & coverage
-        if: always()
-        uses: actions/upload-artifact@ea165f86db5eeb75b540449e92b4886f43607fa02
+      # 固定到 upload-artifact v4 的 40 位提交；仅当确实有文件时才上传
+      - name: Upload logs & coverage (if any)
+        if: ${{ always() && (hashFiles('npm-debug.log') != '' || hashFiles('coverage/**') != '') }}
+        uses: actions/upload-artifact@ea165f86d5ebc75b540449e92b4886f43607fa02
         with:
           name: logs-${{ matrix.node-version }}
-          if-no-files-found: ignore
           path: |
             npm-debug.log
             coverage/**
