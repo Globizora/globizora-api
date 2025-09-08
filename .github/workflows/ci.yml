@@ -1,55 +1,54 @@
+@'
 name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [ main ]
   pull_request:
-  workflow_dispatch:
 
 permissions:
   contents: read
-
-concurrency:
-  group: ci-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
 
 jobs:
   test:
     runs-on: ubuntu-latest
     strategy:
-      fail-fast: false
       matrix:
         node-version: [20, 22]
 
     steps:
-      # 固定到 actions/checkout v5.0.0 的 40 位提交
+      # checkout（固定到你拿到的 v5 提交 SHA）
       - name: Checkout
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
+        uses: actions/checkout@08c6903cd8c0fe910a37f88322edcfb5dd907a8
 
-      # 固定到 actions/setup-node v4 的 40 位提交
-      - name: Setup Node.js
+      # Node（先不启用 cache，等跑绿了再加）
+      - name: Setup Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444
         with:
           node-version: ${{ matrix.node-version }}
-          cache: npm # 不再指定 cache-dependency-path，自动用 package-lock.json
 
       - name: Install
         run: npm ci
 
-      # 只有当仓库里存在 ESLint 配置时才跑 lint（避免“找不到配置”的失败）
       - name: Lint
-        if: ${{ hashFiles('eslint.config.*', '.eslintrc*') != '' }}
-        run: npm run lint
+        run: npm run lint --if-present
 
       - name: Test
         run: npm test --if-present
 
-      # 固定到 upload-artifact v4 的 40 位提交；仅当确实有文件时才上传
-      - name: Upload logs & coverage (if any)
-        if: ${{ always() && (hashFiles('npm-debug.log') != '' || hashFiles('coverage/**') != '') }}
-        uses: actions/upload-artifact@ea165f86d5ebc75b540449e92b4886f43607fa02
+      # 上传日志（即使没有文件也不算失败）
+      - name: Upload logs
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: logs-${{ matrix.node-version }}
+          if-no-files-found: ignore
           path: |
             npm-debug.log
             coverage/**
+'@ | Set-Content -Path .github\workflows\ci.yml -Encoding utf8
+
+git add .github\workflows\ci.yml
+git commit -m "ci: simplify workflow (disable cache, ignore missing artifacts)"
+git pull --rebase --autostash origin main
+git push origin main
